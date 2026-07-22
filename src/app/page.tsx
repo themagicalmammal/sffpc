@@ -3,77 +3,44 @@
 import Viewer from "@/components/Viewer";
 import CaseSelector from "@/components/CaseSelector";
 import CompareList from "@/components/CompareList";
-import { AboutModal, AddCustomCaseModal, ContactModal } from "@/components/Modals";
 import { useStore } from "@/lib/store";
 
 export default function Home() {
-  const selected = useStore((s) => s.selected);
+  const selectedCases = useStore((s) => s.selectedCases);
 
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
-      {/* Header */}
-      <header className="flex-shrink-0 px-4 py-3 sm:px-6 flex items-center gap-4 border-b border-white/5">
-        {/* Logo */}
-        <div className="flex items-center gap-2.5 flex-shrink-0">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
-            S
-          </div>
-          <h1 className="font-outfit font-bold text-lg text-white hidden sm:block">
-            SFF Compare
+    <div className="relative w-screen h-screen overflow-hidden">
+      {/* 3D Viewer */}
+      <Viewer />
+
+      {/* Case Selector Panel */}
+      <CaseSelector />
+
+      {/* Compare List */}
+      <CompareList />
+
+      {/* Header / Nav */}
+      <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 py-2 pointer-events-none">
+        <div className="pointer-events-auto">
+          <h1 className="text-lg font-bold text-white drop-shadow-sm" style={{ fontFamily: "var(--font-outfit)" }}>
+            SFF Case Compare
           </h1>
         </div>
-
-        {/* Case Selector */}
-        <div className="flex-1 max-w-md">
-          <CaseSelector />
-        </div>
-
-        {/* Actions */}
-        <div className="flex items-center gap-2 flex-shrink-0">
+        <div className="pointer-events-auto flex gap-2">
           <button
-            onClick={() => useStore.getState().openModal("addCustom")}
-            className="px-3 py-2 text-sm font-medium text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-lg transition"
+            onClick={() => useStore.setState({ selectedCases: [] })}
+            className="px-3 py-1.5 text-xs font-medium rounded-lg bg-white/90 dark:bg-zinc-900/90 backdrop-blur-sm border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
           >
-            + Custom
+            Clear All ({selectedCases.length})
           </button>
           <button
-            onClick={() => useStore.getState().openModal("about")}
-            className="w-9 h-9 flex items-center justify-center text-white/50 hover:text-white bg-white/10 hover:bg-white/20 rounded-lg transition"
-            title="About"
+            onClick={() => useStore.setState({ modal: "about" })}
+            className="px-3 py-1.5 text-xs font-medium rounded-lg bg-white/90 dark:bg-zinc-900/90 backdrop-blur-sm border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
           >
-            ?
-          </button>
-          <button
-            onClick={() => useStore.getState().openModal("contact")}
-            className="w-9 h-9 flex items-center justify-center text-white/50 hover:text-white bg-white/10 hover:bg-white/20 rounded-lg transition"
-            title="Contact"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-            </svg>
+            About
           </button>
         </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col min-h-0 p-3 sm:p-4 gap-3">
-        {/* 3D Viewer */}
-        <div className="flex-1 min-h-0">
-          <Viewer />
-        </div>
-
-        {/* Compare List */}
-        {selected.size > 0 && (
-          <div className="flex-shrink-0">
-            <CompareList />
-          </div>
-        )}
-      </main>
-
-      {/* Modals */}
-      <AboutModal />
-      <AddCustomCaseModal />
-      <ContactModal />
+      </div>
     </div>
   );
 }

@@ -1,54 +1,48 @@
 "use client";
 
 import { useStore } from "@/lib/store";
-import { getCaseColor } from "@/lib/cases";
 
 export default function CompareList() {
-  const selected = useStore((s) => s.selected);
-  const deselectCase = useStore((s) => s.deselectCase);
-  const entries = Array.from(selected.entries());
+  const { selectedCases, removeCase } = useStore();
 
-  if (entries.length === 0) return null;
+  if (selectedCases.length === 0) return null;
 
   return (
-    <div className="flex items-center gap-3 px-4 py-3 bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 shadow-xl">
-      <span className="text-white/40 text-xs font-medium uppercase tracking-wider whitespace-nowrap">
-        Comparing ({entries.length}/20)
-      </span>
-      <div className="flex gap-2 overflow-x-auto scrollbar-hide flex-1" style={{ scrollbarWidth: "none" }}>
-        {entries.map(([id, caseData], i) => (
-          <div
-            key={id}
-            className="flex items-center gap-2 px-3 py-1.5 bg-white/10 rounded-lg border border-white/10 flex-shrink-0 group hover:bg-white/15 transition"
-          >
+    <div className="fixed bottom-0 left-0 right-0 z-10 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-sm border-t border-zinc-200 dark:border-zinc-700">
+      <div className="max-w-full overflow-x-auto py-3 px-4">
+        <div className="flex gap-3">
+          {selectedCases.map((c) => (
             <div
-              className="w-3 h-3 rounded-full flex-shrink-0"
-              style={{ backgroundColor: getCaseColor(i) }}
-            />
-            <span className="text-white text-sm whitespace-nowrap max-w-32 truncate">
-              {caseData.name}
-            </span>
-            <span className="text-white/30 text-xs whitespace-nowrap">
-              {caseData.length}×{caseData.width}×{caseData.height}
-            </span>
-            <button
-              onClick={() => deselectCase(id)}
-              className="w-5 h-5 flex items-center justify-center rounded-full text-white/40 hover:text-red-400 hover:bg-red-500/20 transition"
+              key={c.id}
+              className="flex items-center gap-2 bg-zinc-50 dark:bg-zinc-800 rounded-lg px-3 py-2 min-w-[180px] max-w-[240px] group"
             >
-              ×
-            </button>
-          </div>
-        ))}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-sm font-medium text-zinc-900 dark:text-white truncate">
+                    {c.name}
+                  </span>
+                  {c.style && (
+                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 flex-shrink-0">
+                      {c.style}
+                    </span>
+                  )}
+                </div>
+                <div className="text-xs text-zinc-500">
+                  {c.seller} &middot; {c.length}&times;{c.width}&times;{c.height}mm
+                  {c.volume ? ` &middot; ${c.volume.toFixed(1)}L` : ""}
+                </div>
+              </div>
+              <button
+                onClick={() => removeCase(c.name)}
+                className="flex-shrink-0 w-5 h-5 rounded-full bg-zinc-200 dark:bg-zinc-700 text-zinc-500 dark:text-zinc-400 flex items-center justify-center hover:bg-red-100 hover:text-red-500 dark:hover:bg-red-900 dark:hover:text-red-400 transition-colors"
+                title="Remove"
+              >
+                ×
+              </button>
+            </div>
+          ))}
+        </div>
       </div>
-      <button
-        onClick={() => {
-          const clearAll = useStore.getState().clearAll;
-          clearAll();
-        }}
-        className="text-white/40 text-xs hover:text-red-400 transition flex-shrink-0"
-      >
-        Clear all
-      </button>
     </div>
   );
 }

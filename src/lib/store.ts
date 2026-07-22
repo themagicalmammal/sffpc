@@ -1,67 +1,76 @@
 import { create } from "zustand";
-import { SffCase } from "./cases";
+import type { SffCase } from "@/lib/cases";
+import type { Vector3 } from "three";
 
-export type ModalType = "about" | "addCustom" | "contact" | null;
+export type Modal = null | "about" | "contact" | "addCustom";
 
-export interface CustomCase extends SffCase {
-  isCustom: true;
+export interface CustomCase {
+  seller: string;
+  name: string;
+  length: string;
+  width: string;
+  height: string;
 }
 
-interface AppState {
-  // Selected cases for comparison
-  selected: Map<string, SffCase | CustomCase>;
-
-  // Modal state
-  activeModal: ModalType;
-
-  // Custom cases counter (for ID generation)
-  customCount: number;
-
-  // Actions
-  selectCase: (id: string, caseData: SffCase | CustomCase) => void;
-  deselectCase: (id: string) => void;
-  openModal: (modal: ModalType) => void;
+interface Store {
+  selectedCases: SffCase[];
+  customCases: CustomCase[];
+  selectedCase: SffCase | null;
+  modal: Modal;
+  searchQuery: string;
+  draggingCase: string | null;
+  casePositions: Record<string, Vector3>;
+  addCase: (caseData: SffCase) => void;
+  removeCase: (name: string) => void;
+  setSelectedCase: (caseData: SffCase | null) => void;
+  openModal: (modal: Modal) => void;
   closeModal: () => void;
-  addCustomCase: (caseData: Omit<CustomCase, "id" | "isCustom">) => void;
-  clearAll: () => void;
+  setSearchQuery: (query: string) => void;
+  addCustomCase: (customCase: CustomCase) => void;
+  setDraggingCase: (name: string | null) => void;
+  setCasePosition: (name: string, pos: Vector3) => void;
+  resetCasePosition: (name: string) => void;
 }
 
-export const useStore = create<AppState>((set) => ({
-  selected: new Map(),
-  activeModal: null,
-  customCount: 0,
-
-  selectCase: (id, caseData) =>
+export const useStore = create<Store>((set) => ({
+  selectedCases: [],
+  customCases: [],
+  selectedCase: null,
+  modal: null,
+  searchQuery: "",
+  draggingCase: null,
+  casePositions: {},
+  addCase: (caseData: SffCase) =>
     set((state) => {
-      if (state.selected.has(id) || state.selected.size >= 20) return state;
-      const next = new Map(state.selected);
-      next.set(id, caseData);
-      return { selected: next };
+      if (state.selectedCases.some((c) => c.name === caseData.name)) {
+        return state;
+      }
+      return { selectedCases: [...state.selectedCases, caseData] };
     }),
-
-  deselectCase: (id) =>
+  removeCase: (name: string) =>
     set((state) => {
-      if (!state.selected.has(id)) return state;
-      const next = new Map(state.selected);
-      next.delete(id);
-      return { selected: next };
-    }),
-
-  openModal: (modal) => set({ activeModal: modal }),
-  closeModal: () => set({ activeModal: null }),
-
-  addCustomCase: (caseData) =>
-    set((state) => {
-      const id = `custom-${state.customCount}`;
-      const customCase: CustomCase = {
-        ...caseData,
-        id,
-        isCustom: true,
+      const { [name]: _pos, ...rest } = state.casePositions;
+      return {
+        selectedCases: state.selectedCases.filter((c) => c.name !== name),
+        casePositions: rest,
       };
-      const next = new Map(state.selected);
-      next.set(id, customCase);
-      return { selected: next, customCount: state.customCount + 1 };
     }),
-
-  clearAll: () => set({ selected: new Map() }),
+  setSelectedCase: (caseData: SffCase | null) => set({ selectedCase: caseData }),
+  openModal: (modal: Modal) => set({ modal }),
+  closeModal: () => set({ modal: null }),
+  setSearchQuery: (query: string) => set({ searchQuery: query }),
+  addCustomCase: (customCase: CustomCase) =>
+    set((state) => ({
+      customCases: [...state.customCases, customCase],
+    })),
+  setDraggingCase: (name: string | null) => set({ draggingCase: name }),
+  setCasePosition: (name: string, pos: Vector3) =>
+    set((state) => ({
+      casePositions: { ...state.casePositions, [name]: pos.clone() },
+    })),
+  resetCasePosition: (name: string) =>
+    set((state) => {
+      const { [name]: _pos, ...rest } = state.casePositions;
+      return { casePositions: rest };
+    }),
 }));
