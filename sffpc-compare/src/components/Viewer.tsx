@@ -95,9 +95,10 @@ function Scene() {
       const totalWidth = lastPos + maxDim + 1;
       const totalHeight = Math.max(...scaledCases.map((s) => s.case.height)) * 0.01;
       // Place camera at a distance proportional to the scene width
-      const dist = Math.max(totalWidth * 0.8, 3);
-      camera.position.set(totalWidth / 2, totalHeight * 0.6, dist);
-      camera.lookAt(totalWidth / 2, totalHeight * 0.4, 0);
+      const dist = Math.max(totalWidth * 2.0, 5);
+      const camY = Math.max(totalHeight * 1.2, 1.5);
+      camera.position.set(totalWidth / 2, camY, dist);
+      camera.lookAt(totalWidth / 2, totalHeight * 0.5, 0);
       camera.zoom = 1;
       camera.updateProjectionMatrix();
     }
@@ -159,7 +160,7 @@ function Scene() {
 export default function Viewer() {
   return (
     <div className="w-full h-screen bg-black">
-      <Canvas camera={{ fov: 50, near: 0.1, far: 1000 }} style={{ width: "100%", height: "100%" }}>
+      <Canvas camera={{ fov: 60, near: 0.1, far: 1000 }} style={{ width: "100%", height: "100%" }}>
         <ambientLight intensity={0.5} />
         <directionalLight position={[5, 10, 5]} intensity={1} />
         <directionalLight position={[-5, 5, -5]} intensity={0.5} />
