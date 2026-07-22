@@ -94,9 +94,11 @@ function Scene() {
       ));
       const totalWidth = lastPos + maxDim + 1;
       const totalHeight = Math.max(...scaledCases.map((s) => s.case.height)) * 0.01;
-      camera.position.set(totalWidth / 2, totalHeight + 1, 4);
-      camera.lookAt(totalWidth / 2, totalHeight / 2, 0);
-      camera.zoom = Math.max(0.3, 2 / Math.sqrt(selectedCases.length));
+      // Place camera at a distance proportional to the scene width
+      const dist = Math.max(totalWidth * 0.8, 3);
+      camera.position.set(totalWidth / 2, totalHeight * 0.6, dist);
+      camera.lookAt(totalWidth / 2, totalHeight * 0.4, 0);
+      camera.zoom = 1;
       camera.updateProjectionMatrix();
     }
   }, [scaledCases, selectedCases.length, camera]);
